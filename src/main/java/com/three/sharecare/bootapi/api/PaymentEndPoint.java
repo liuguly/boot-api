@@ -89,12 +89,13 @@ public class PaymentEndPoint {
     }
 
     @ApiOperation(value = "查找支付详情",notes = "查找支付详情")
-    @RequestMapping(value = "/detail/{careType}/{typeId}",method = RequestMethod.GET)
+    @RequestMapping(value = "/detail/{bookingId}/{careType}/{typeId}",method = RequestMethod.GET)
     public ResponseResult<PaymentDto> findPaymentDetail(@RequestHeader(value = "token") String token,
+                                                        @PathVariable(value = "bookingId") Long bookingId,
                                                         @PathVariable(value = "careType") Integer careType,
                                                         @PathVariable(value = "typeId") Long typeId){
         AccountDto accountDto = accountService.checkToken(token);
-        PaymentDto data = paymentService.findPaymentDetail(accountDto,typeId,careType);
+        PaymentDto data = paymentService.findPaymentDetail(accountDto,bookingId,typeId,careType);
         ResponseResult<PaymentDto> result = new ResponseResult<>(true,"find payment info success!",data,HttpStatus.OK.value());
         return result;
     }

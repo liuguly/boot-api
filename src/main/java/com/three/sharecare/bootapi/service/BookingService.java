@@ -52,7 +52,7 @@ public class BookingService {
     public Booking bookingCare(AccountDto accountDto, BookingRequest request){
         Booking booking = new Booking();
         booking.setTypeId(request.getCareId());
-        booking.setBookingCode(UUIDUtils.getUUID());
+        booking.setBookingCode(UUIDUtils.get10LenUUID());
         booking.setCareType(request.getCareType());
         BeanUtils.copyProperties(request,booking);
         String whoIsComing = jsonMapper.toJson(request.getWhoIsComings());
@@ -156,62 +156,6 @@ public class BookingService {
                     bookingDto.setShareIcon(photoPahts);
                     bookingDto.setAddressLat(sharecare.getAddressLat());
                     bookingDto.setAddressLon(sharecare.getAddressLon());
-                }
-            }else if(type ==1){
-                BabySitting babySitting = babySittingDao.findOne(typeId);
-                if(babySitting !=null){
-//                    bookingDto.setShareAddress();
-                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
-                    List<String> photoPahts = jsonMapper.fromJson(babySitting.getPhotosPath(), javaType);
-                    bookingDto.setShareIcon(photoPahts);
-                }
-            }else if(type==2){
-                Event event = eventDao.findOne(typeId);
-                if(event!=null){
-                    bookingDto.setShareAddress(event.getAddress());
-                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
-                    List<String> photoPahts = jsonMapper.fromJson(event.getImagePath(), javaType);
-                    bookingDto.setShareIcon(photoPahts);
-                    bookingDto.setAddressLat(event.getAddressLat());
-                    bookingDto.setAddressLon(event.getAddressLon());
-                    bookingDto.setWhereToMeetLat(event.getWhereToMeetLat());
-                    bookingDto.setWhereToMeetLon(event.getWhereToMeetLon());
-                }
-            }
-            JavaType javaType = jsonMapper.buildCollectionType(List.class, UserInfoDto.ChildrenInfo.class);
-            List<UserInfoDto.ChildrenInfo> whoIsComings = jsonMapper.fromJson(booking.getWhoIsComings(),javaType);
-            bookingDto.setWhoIsComings(whoIsComings);
-            result.add(bookingDto);
-        }
-        Page<BookingDto> pageResult = new PageImpl<BookingDto>(result,pageable,result.size());
-        return pageResult;
-    }
-
-
-    /**
-     * 获取past预定信息
-     * @param accountDto 当前用户
-     * @param pageable 分页
-     * @return booking
-     */
-    public Page<BookingDto> findPastBooking(AccountDto accountDto,Pageable pageable){
-        Long accountId = accountDto.getId();
-        Page<Booking> data = bookingDao.findAllByAccount_IdAndStartDateBefore(accountId,new Date(),pageable);
-        List<BookingDto> result = Lists.newArrayList();
-        for(Booking booking : data){
-            BookingDto bookingDto = new BookingDto();
-            BeanUtils.copyProperties(booking, bookingDto);
-            Long typeId = booking.getTypeId();
-            Integer type = booking.getCareType();
-            if(type ==0){
-                ShareCare sharecare = shareCareDao.findOne(typeId);
-                if(sharecare!=null){
-                    bookingDto.setShareAddress(sharecare.getAddress());
-                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
-                    List<String> photoPahts = jsonMapper.fromJson(sharecare.getPhotosPath(), javaType);
-                    bookingDto.setShareIcon(photoPahts);
-                    bookingDto.setAddressLat(sharecare.getAddressLat());
-                    bookingDto.setAddressLon(sharecare.getAddressLon());
                     Account owner = sharecare.getOwner();
                     if(owner!=null){
                         UserInfo userInfo = owner.getUserInfo();
@@ -263,26 +207,29 @@ public class BookingService {
             bookingDto.setWhoIsComings(whoIsComings);
             result.add(bookingDto);
         }
-        Page<BookingDto> pageResult = new PageImpl<BookingDto>(result,pageable,data.getTotalElements());
+        Page<BookingDto> pageResult = new PageImpl<BookingDto>(result,pageable,result.size());
         return pageResult;
     }
 
 
     /**
-     * 获取comming预定信息
+     * 获取past预定信息
      * @param accountDto 当前用户
      * @param pageable 分页
      * @return booking
      */
-    public Page<BookingDto> findUpCommingBooking(AccountDto accountDto,Pageable pageable){
+    public Page<BookingDto> findPastBooking(AccountDto accountDto,Pageable pageable){
         Long accountId = accountDto.getId();
-        Page<Booking> data = bookingDao.findUpcomingPaymentBookins(accountId,pageable);
+        Page<Booking> data = bookingDao.findAllByAccount_IdAndStartDateBefore(accountId,new Date(),pageable);
         List<BookingDto> result = Lists.newArrayList();
         for(Booking booking : data){
             BookingDto bookingDto = new BookingDto();
             BeanUtils.copyProperties(booking, bookingDto);
             Long typeId = booking.getTypeId();
             Integer type = booking.getCareType();
+            Payment payment = booking.getPayment();
+            bookingDto.setPaymentId(payment.getId());
+            bookingDto.setBookingId(booking.getId());
             if(type ==0){
                 ShareCare sharecare = shareCareDao.findOne(typeId);
                 if(sharecare!=null){
@@ -308,6 +255,97 @@ public class BookingService {
                     JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
                     List<String> photoPahts = jsonMapper.fromJson(babySitting.getPhotosPath(), javaType);
                     bookingDto.setShareIcon(photoPahts);
+                    UserInfoDto userInfoDto = accountDto.getUserInfoDto();
+                    if(userInfoDto!=null){
+                        bookingDto.setShareAddress(userInfoDto.getAddress());
+                    }
+                    Account owner = babySitting.getOwner();
+                    if(owner!=null){
+                        UserInfo userInfo = owner.getUserInfo();
+                        bookingDto.setUserName(owner.getUserName());
+                        if(userInfo!=null){
+                            bookingDto.setUserIcon(userInfo.getUserIcon());
+                        }
+                    }
+                }
+            }else if(type==2){
+                Event event = eventDao.findOne(typeId);
+                if(event!=null){
+                    bookingDto.setShareAddress(event.getAddress());
+                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
+                    List<String> photoPahts = jsonMapper.fromJson(event.getImagePath(), javaType);
+                    bookingDto.setShareIcon(photoPahts);
+                    bookingDto.setAddressLat(event.getAddressLat());
+                    bookingDto.setAddressLon(event.getAddressLon());
+                    bookingDto.setWhereToMeetLat(event.getWhereToMeetLat());
+                    bookingDto.setWhereToMeetLon(event.getWhereToMeetLon());
+                    Account owner = event.getOwner();
+                    if(owner!=null){
+                        UserInfo userInfo = owner.getUserInfo();
+                        bookingDto.setUserName(owner.getUserName());
+                        if(userInfo!=null){
+                            bookingDto.setUserIcon(userInfo.getUserIcon());
+                        }
+                    }
+                }
+            }
+            JavaType javaType = jsonMapper.buildCollectionType(List.class, UserInfoDto.ChildrenInfo.class);
+            List<UserInfoDto.ChildrenInfo> whoIsComings = jsonMapper.fromJson(booking.getWhoIsComings(),javaType);
+            bookingDto.setWhoIsComings(whoIsComings);
+            result.add(bookingDto);
+        }
+        Page<BookingDto> pageResult = new PageImpl<BookingDto>(result,pageable,data.getTotalElements());
+        return pageResult;
+    }
+
+
+    /**
+     * 获取comming预定信息
+     * @param accountDto 当前用户
+     * @param pageable 分页
+     * @return booking
+     */
+    public Page<BookingDto> findUpCommingBooking(AccountDto accountDto,Pageable pageable){
+        Long accountId = accountDto.getId();
+        Page<Booking> data = bookingDao.findUpcomingPaymentBookins(accountId,new Date(),pageable);
+        List<BookingDto> result = Lists.newArrayList();
+        for(Booking booking : data){
+            BookingDto bookingDto = new BookingDto();
+            BeanUtils.copyProperties(booking, bookingDto);
+            Long typeId = booking.getTypeId();
+            Integer type = booking.getCareType();
+            Payment payment = booking.getPayment();
+            bookingDto.setPaymentId(payment.getId());
+            bookingDto.setBookingId(booking.getId());
+            if(type ==0){
+                ShareCare sharecare = shareCareDao.findOne(typeId);
+                if(sharecare!=null){
+                    bookingDto.setShareAddress(sharecare.getAddress());
+                    bookingDto.setAddressLat(sharecare.getAddressLat());
+                    bookingDto.setAddressLon(sharecare.getAddressLon());
+                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
+                    List<String> photoPahts = jsonMapper.fromJson(sharecare.getPhotosPath(), javaType);
+                    bookingDto.setShareIcon(photoPahts);
+                    Account owner = sharecare.getOwner();
+                    if(owner!=null){
+                        UserInfo userInfo = owner.getUserInfo();
+                        bookingDto.setUserName(owner.getUserName());
+                        if(userInfo!=null){
+                            bookingDto.setUserIcon(userInfo.getUserIcon());
+                        }
+                    }
+                }
+            }else if(type ==1){
+                BabySitting babySitting = babySittingDao.findOne(typeId);
+                if(babySitting !=null){
+//                    bookingDto.setShareAddress();
+                    JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
+                    List<String> photoPahts = jsonMapper.fromJson(babySitting.getPhotosPath(), javaType);
+                    bookingDto.setShareIcon(photoPahts);
+                    UserInfoDto userInfoDto = accountDto.getUserInfoDto();
+                    if(userInfoDto!=null){
+                        bookingDto.setShareAddress(userInfoDto.getAddress());
+                    }
                     Account owner = babySitting.getOwner();
                     if(owner!=null){
                         UserInfo userInfo = owner.getUserInfo();

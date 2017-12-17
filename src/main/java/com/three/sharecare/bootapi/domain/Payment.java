@@ -12,6 +12,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "receipt_code")
+    private String receiptCode;
+
     @Column(name = "payment_type")
     private Integer paymentType;
 
@@ -78,6 +81,10 @@ public class Payment {
 
     @Column(name = "payment_email_or_number")
     private String paymentEmailOrCardNumber;
+
+
+    @OneToOne(targetEntity = Booking.class, mappedBy = "payment", cascade = CascadeType.ALL)
+    private Booking booking;
 
     /**
      * 创建日期
@@ -212,5 +219,21 @@ public class Payment {
 
     public void setPaymentEmailOrCardNumber(String paymentEmailOrCardNumber) {
         this.paymentEmailOrCardNumber = paymentEmailOrCardNumber;
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public String getReceiptCode() {
+        return receiptCode;
+    }
+
+    public void setReceiptCode(String receiptCode) {
+        this.receiptCode = receiptCode;
     }
 }

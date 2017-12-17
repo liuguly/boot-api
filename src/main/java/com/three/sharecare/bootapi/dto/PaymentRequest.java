@@ -8,6 +8,8 @@ import java.io.Serializable;
 public class PaymentRequest implements Serializable{
 
     @NotNull
+    private Long bookingId;
+    @NotNull
     private Double amount;
     private Integer days;
     private Integer childNums;
@@ -96,6 +98,14 @@ public class PaymentRequest implements Serializable{
 
     public void setPaymentEmailOrCardNumber(String paymentEmailOrCardNumber) {
         this.paymentEmailOrCardNumber = paymentEmailOrCardNumber;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 }
 

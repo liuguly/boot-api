@@ -1,5 +1,7 @@
 package com.three.sharecare.bootapi.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.UUID;
 
 public class UUIDUtils {
@@ -32,4 +34,18 @@ public class UUIDUtils {
         //去掉“-”符号
         return uuid.replaceAll("-", "").toUpperCase();
     }
+
+
+    /**
+     * 获得一个UUID
+     *
+     * @return String UUID
+     */
+    public static String get10LenUUID() {
+        String uuid = UUID.randomUUID().toString();
+        //去掉“-”符号
+        uuid = uuid.replaceAll("-", "").toUpperCase();
+        return StringUtils.substring(uuid,0,10);
+    }
+
 }

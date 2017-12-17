@@ -11,6 +11,8 @@ public class PaymentDto implements Serializable {
     private String confirmationCode;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date appointTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date bookingTime;
     private List<UserInfoDto.ChildrenInfo> childrenInfos;
     private String address;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -20,6 +22,9 @@ public class PaymentDto implements Serializable {
     private Integer childNums;
     private String amount;
     private String masterCard;
+    private String receiptCode;
+    private String timePeriod;
+
 
     public String getConfirmationCode() {
         return confirmationCode;
@@ -27,6 +32,14 @@ public class PaymentDto implements Serializable {
 
     public void setConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
+    }
+
+    public Date getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(Date bookingTime) {
+        this.bookingTime = bookingTime;
     }
 
     public Date getAppointTime() {
@@ -99,5 +112,21 @@ public class PaymentDto implements Serializable {
 
     public void setMasterCard(String masterCard) {
         this.masterCard = masterCard;
+    }
+
+    public String getReceiptCode() {
+        return receiptCode;
+    }
+
+    public void setReceiptCode(String receiptCode) {
+        this.receiptCode = receiptCode;
+    }
+
+    public String getTimePeriod() {
+        return timePeriod;
+    }
+
+    public void setTimePeriod(String timePeriod) {
+        this.timePeriod = timePeriod;
     }
 }

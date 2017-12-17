@@ -11,7 +11,6 @@ public interface PaymentDao extends PagingAndSortingRepository<Payment,Long> {
     @Query(value = "select p from Payment p " +
             "left join fetch p.account a " +
             "left join fetch a.userInfo " +
-            "where p.shareId=?1 and p.careType=?2 and a.id=?3")
-    Payment findByShareIdAndCareTypeAndAccount_Id(Long shareCareId,Integer careType,Long accountId);
-
+            "where p.shareId=?1 and p.careType=?2 and a.id=?3 ")
+    Payment findFirstByShareIdAndCareTypeAndAccount_IdOrderByCreateTimeDesc(Long shareCareId,Integer careType,Long accountId);
 }

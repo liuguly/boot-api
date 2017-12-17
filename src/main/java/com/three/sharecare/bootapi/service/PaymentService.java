@@ -8,6 +8,7 @@ import com.three.sharecare.bootapi.repository.AccountDao;
 import com.three.sharecare.bootapi.repository.PaymentDao;
 import com.three.sharecare.bootapi.service.exception.ErrorCode;
 import com.three.sharecare.bootapi.service.exception.ServiceException;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,14 +63,17 @@ public class PaymentService extends BaseService{
         return this.braintreeGateway.clientToken().generate();
     }
 
-    public PaymentDto findPaymentDetail(AccountDto accountDto, Long shareId, Integer careType){
-        Payment payment = paymentDao.findByShareIdAndCareTypeAndAccount_Id(shareId,careType,accountDto.getId());
+    public PaymentDto findPaymentDetail(AccountDto accountDto, Long bookingId, Long shareId, Integer careType){
+        Booking booking = bookingDao.findOne(bookingId);
+        Payment payment = booking.getPayment();
         PaymentDto paymentDto = new PaymentDto();
-        Booking booking = bookingDao.findBookingByCareTypeAndTypeIdAndAccount_Id(careType,shareId,accountDto.getId());
         paymentDto.setAmount(payment.getAmount());
         paymentDto.setChildNums(payment.getChildNums());
         paymentDto.setDays(payment.getDays());
         paymentDto.setUnitPrice(payment.getUnitPrice());
+        paymentDto.setConfirmationCode(booking.getBookingCode());
+        paymentDto.setReceiptCode(payment.getReceiptCode());
+        paymentDto.setBookingTime(booking.getCreateTime());
         Account account = payment.getAccount();
         if(account!=null){
             UserInfo userInfo = account.getUserInfo();
@@ -83,10 +87,12 @@ public class PaymentService extends BaseService{
         paymentDto.setAppointTime(booking.getStartDate());
         paymentDto.setMasterCard(payment.getPaymentEmailOrCardNumber());
         paymentDto.setPaymentReceivedTime(payment.getCreateTime());
+        paymentDto.setTimePeriod(booking.getTimePeriod());
         if(careType==0){
             ShareCare shareCare = shareCareDao.findOne(shareId);
             paymentDto.setAddress(shareCare.getAddress());
         }else if(careType==1){
+            paymentDto.setTimePeriod(booking.getTimePeriod());
             if(account!=null){
                 UserInfo userInfo = account.getUserInfo();
                 if(userInfo!=null){
@@ -135,12 +141,17 @@ public class PaymentService extends BaseService{
     private Payment savePaymentInfo(AccountDto accountDto,PaymentRequest paymentRequest,Transaction transaction){
         Long accountId = accountDto.getId();
         Account account = accountDao.findOne(accountId);
+        Booking booking = bookingDao.findOne(paymentRequest.getBookingId());
         Payment payment = new Payment();
         BeanUtils.copyProperties(paymentRequest,payment);
         payment.setAccount(account);
+        payment.setAmount(paymentRequest.getAmount()+"");
+        String currentDate = DateFormatUtils.format(new Date(),"yyyyMMddHHmmSS");
+        payment.setReceiptCode(currentDate.concat(accountDto.getId()+""));
         payment.setCreateTime(new Date());
         payment.setUpdateTime(new Date());
         payment = paymentDao.save(payment);
+        bookingDao.updatePaymentId(payment.getId(),booking.getId());
         return payment;
     }
 

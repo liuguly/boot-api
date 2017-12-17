@@ -68,6 +68,11 @@ public class Booking {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
+    @OneToOne(targetEntity = Payment.class, optional = true,cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id", updatable = false, nullable = true)
+    private Payment payment;
+
+
     @Temporal(value = TemporalType.TIMESTAMP)
     @Column(name = "create_time", length = 25)
     private Date createTime;
@@ -202,6 +207,14 @@ public class Booking {
 
     public void setTimePeriod(String timePeriod) {
         this.timePeriod = timePeriod;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 
     public String getBookingCode() {

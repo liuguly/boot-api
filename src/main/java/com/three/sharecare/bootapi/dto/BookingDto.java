@@ -54,6 +54,9 @@ public class BookingDto implements Serializable{
     private String whereToMeetLat;
     private String whereToMeetLon;
 
+    private Long paymentId;
+    private Long bookingId;
+
     public Long getId() {
         return id;
     }
@@ -236,5 +239,21 @@ public class BookingDto implements Serializable{
 
     public void setWhereToMeetLon(String whereToMeetLon) {
         this.whereToMeetLon = whereToMeetLon;
+    }
+
+    public Long getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 }

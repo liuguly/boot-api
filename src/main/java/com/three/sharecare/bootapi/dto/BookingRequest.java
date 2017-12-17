@@ -33,6 +33,7 @@ public class BookingRequest implements Serializable {
     private Integer stayDays;
     @ApiModelProperty(name = "totalPrice", value = "总价")
     private Double totalPrice;
+    private String timePeriod;
 
     public Integer getCareType() {
         return careType;
@@ -106,4 +107,11 @@ public class BookingRequest implements Serializable {
         this.totalPrice = totalPrice;
     }
 
+    public String getTimePeriod() {
+        return timePeriod;
+    }
+
+    public void setTimePeriod(String timePeriod) {
+        this.timePeriod = timePeriod;
+    }
 }

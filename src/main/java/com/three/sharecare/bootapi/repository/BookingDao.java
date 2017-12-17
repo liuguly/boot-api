@@ -3,6 +3,7 @@ package com.three.sharecare.bootapi.repository;
 import com.three.sharecare.bootapi.domain.Booking;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -55,17 +56,22 @@ public interface BookingDao extends PagingAndSortingRepository<Booking, Long> {
      * @param accountId 账户id
      * @return
      */
-    @Query(value = "SELECT b.* FROM sb_booking b INNER JOIN sb_payment p " +
-            "ON p.care_type=b.care_type AND p.share_id=b.type_id AND b.account_id=p.account_id " +
-            "WHERE p.account_id=?1 " +
-            "AND b.start_date>=sysdate() " +
-            "ORDER BY ?#{#pageable} ",
-            countQuery = "SELECT COUNT(*) FROM (SELECT b.* FROM sb_booking b INNER JOIN sb_payment p " +
-                    "ON p.care_type=b.care_type AND p.share_id=b.type_id AND b.account_id=p.account_id " +
-                    "WHERE p.account_id=?1 " +
-                    "AND b.start_date>=sysdate()) c1",
-            nativeQuery = true)
-    Page<Booking> findUpcomingPaymentBookins(Long accountId,Pageable pageable);
+//    @Query(value = "SELECT b.* FROM sb_booking b INNER JOIN sb_payment p " +
+//            "ON p.care_type=b.care_type AND p.share_id=b.type_id AND b.account_id=p.account_id " +
+//            "WHERE p.account_id=?1 " +
+//            "AND b.start_date>=sysdate() " +
+//            "ORDER BY ?#{#pageable} ",
+//            countQuery = "SELECT COUNT(*) FROM (SELECT b.* FROM sb_booking b INNER JOIN sb_payment p " +
+//                    "ON p.care_type=b.care_type AND p.share_id=b.type_id AND b.account_id=p.account_id " +
+//                    "WHERE p.account_id=?1 " +
+//                    "AND b.start_date>=sysdate()) c1",
+//            nativeQuery = true)
+    @Query(value = "select b from Booking as b " +
+            "left join b.account a " +
+            "left join a.userInfo a " +
+            "inner join b.payment p " +
+            "where b.account.id=?1 and b.startDate>=?2 and b.payment is not null ")
+    Page<Booking> findUpcomingPaymentBookins(Long accountId, Date currentDate,Pageable pageable);
 
     /**
      * 根据分享类型和id查询当前booking信息
@@ -78,7 +84,6 @@ public interface BookingDao extends PagingAndSortingRepository<Booking, Long> {
             "left join fetch b.account as a " +
             "left join fetch a.userInfo as u where b.careType=?1 and b.typeId=?2")
     List<Booking> findAllByCareTypeAndTypeId(Integer careType, Long typeId);
-
 
     @Query(value = "select b from Booking as b " +
             "left join fetch b.account as a " +
@@ -131,5 +136,10 @@ public interface BookingDao extends PagingAndSortingRepository<Booking, Long> {
             "left join fetch a.userInfo u " +
             "where b.careType=?1 and b.typeId=?2 and a.id=?3 ")
     Booking findBookingByCareTypeAndTypeIdAndAccount_Id(Integer careType,Long typeId,Long accountId);
+
+
+    @Modifying
+    @Query(value = "update Booking b set b.payment.id=?1 where b.id=?2 ")
+    void updatePaymentId(Long paymentId, Long id);
 
 }

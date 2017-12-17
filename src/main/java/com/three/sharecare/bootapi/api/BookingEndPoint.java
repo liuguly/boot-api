@@ -93,7 +93,7 @@ public class BookingEndPoint {
     @ApiOperation(value = "获取coming的booking",notes = "获取coming的booking")
     @RequestMapping(value = "/upComing/list",method = RequestMethod.GET)
     public ResponseResult<Page<BookingDto>> findComingBookingList(@RequestHeader(value = "token") String token,
-                                                                  @PageableDefault(sort = {"create_time"}, direction = Sort.Direction.DESC) Pageable pageable){
+                                                                  @PageableDefault(sort = {"createTime"}, direction = Sort.Direction.DESC) Pageable pageable){
         AccountDto accountDto = accountService.checkToken(token);
         Page<BookingDto> data = bookingService.findUpCommingBooking(accountDto,pageable);
         ResponseResult<Page<BookingDto>> result = new ResponseResult<>(true,"find past booking list success!", data,HttpStatus.OK.value());

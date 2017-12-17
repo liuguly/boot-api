@@ -1,6 +1,7 @@
 package com.three.sharecare.bootapi.service;
 
 import com.three.sharecare.bootapi.dto.EventDto;
+import com.three.sharecare.bootapi.dto.PaymentDto;
 import com.three.sharecare.bootapi.dto.SearchShareByConditionDto;
 import com.three.sharecare.bootapi.utils.UUIDUtils;
 import org.junit.Test;
@@ -50,5 +51,13 @@ public class AccountServiceTest {
 	public void test5(){
 		System.out.println(UUID.nameUUIDFromBytes(SEQUENCE.getBytes()).toString());
 		System.out.println(UUIDUtils.getUUID().toUpperCase());
+	}
+
+	private JsonMapper jsonMapper = new JsonMapper();
+
+	@Test
+	public void test6(){
+		PaymentDto paymentDto = new PaymentDto();
+		System.out.println(jsonMapper.toJson(paymentDto));
 	}
 }
