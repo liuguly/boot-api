@@ -154,6 +154,7 @@ public class BookingService {
                     JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
                     List<String> photoPahts = jsonMapper.fromJson(sharecare.getPhotosPath(), javaType);
                     bookingDto.setShareIcon(photoPahts);
+                    bookingDto.setShareAddress(sharecare.getAddress());
                     bookingDto.setAddressLat(sharecare.getAddressLat());
                     bookingDto.setAddressLon(sharecare.getAddressLon());
                     Account owner = sharecare.getOwner();
@@ -177,6 +178,7 @@ public class BookingService {
                         UserInfo userInfo = owner.getUserInfo();
                         bookingDto.setUserName(owner.getUserName());
                         if(userInfo!=null){
+                            bookingDto.setShareAddress(userInfo.getAddress());
                             bookingDto.setUserIcon(userInfo.getUserIcon());
                         }
                     }
@@ -197,6 +199,7 @@ public class BookingService {
                         UserInfo userInfo = owner.getUserInfo();
                         bookingDto.setUserName(owner.getUserName());
                         if(userInfo!=null){
+                            bookingDto.setShareAddress(userInfo.getAddress());
                             bookingDto.setUserIcon(userInfo.getUserIcon());
                         }
                     }
@@ -255,15 +258,12 @@ public class BookingService {
                     JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
                     List<String> photoPahts = jsonMapper.fromJson(babySitting.getPhotosPath(), javaType);
                     bookingDto.setShareIcon(photoPahts);
-                    UserInfoDto userInfoDto = accountDto.getUserInfoDto();
-                    if(userInfoDto!=null){
-                        bookingDto.setShareAddress(userInfoDto.getAddress());
-                    }
                     Account owner = babySitting.getOwner();
                     if(owner!=null){
                         UserInfo userInfo = owner.getUserInfo();
                         bookingDto.setUserName(owner.getUserName());
                         if(userInfo!=null){
+                            bookingDto.setShareAddress(userInfo.getAddress());
                             bookingDto.setUserIcon(userInfo.getUserIcon());
                         }
                     }
@@ -342,15 +342,12 @@ public class BookingService {
                     JavaType javaType = jsonMapper.buildCollectionType(List.class,String.class);
                     List<String> photoPahts = jsonMapper.fromJson(babySitting.getPhotosPath(), javaType);
                     bookingDto.setShareIcon(photoPahts);
-                    UserInfoDto userInfoDto = accountDto.getUserInfoDto();
-                    if(userInfoDto!=null){
-                        bookingDto.setShareAddress(userInfoDto.getAddress());
-                    }
                     Account owner = babySitting.getOwner();
                     if(owner!=null){
                         UserInfo userInfo = owner.getUserInfo();
                         bookingDto.setUserName(owner.getUserName());
                         if(userInfo!=null){
+                            bookingDto.setShareAddress(userInfo.getAddress());
                             bookingDto.setUserIcon(userInfo.getUserIcon());
                         }
                     }
